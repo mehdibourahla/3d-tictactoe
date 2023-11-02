@@ -1,12 +1,22 @@
+let currentPlayer = "X";
+gameState = createGameState();
+function switchPlayer() {
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initializeGame();
 
   const boards = document.querySelectorAll(".board");
-  boards.forEach((board) => {
+  boards.forEach((board, level) => {
     board.addEventListener("click", function (e) {
       const cell = e.target;
+      const index = Array.from(board.children).indexOf(cell);
       if (cell.classList.contains("cell") && !cell.textContent) {
-        cell.textContent = "X";
+        cell.textContent = currentPlayer;
+        updateGameState(gameState, level, index, currentPlayer);
+        switchPlayer();
+        // Additional logic for switching turns or handling the AI's turn
       }
     });
   });
@@ -22,6 +32,45 @@ function initializeGame() {
     }
   });
 }
+function checkWin(gameState) {
+  // Check horizontal and vertical lines in each board
+  for (let level = 0; level < 3; level++) {
+    let board = gameState.levels[level];
+    for (let i = 0; i < 4; i++) {
+      // Check rows and columns
+      if (
+        board[i * 4] === board[i * 4 + 1] &&
+        board[i * 4 + 1] === board[i * 4 + 2] &&
+        board[i * 4 + 2] === board[i * 4 + 3] &&
+        board[i * 4] != null
+      ) {
+        return true; // Row win
+      }
+      if (
+        board[i] === board[i + 4] &&
+        board[i + 4] === board[i + 8] &&
+        board[i + 8] === board[i + 12] &&
+        board[i] != null
+      ) {
+        return true; // Column win
+      }
+    }
+  }
+
+  // TODO: Check vertical lines across levels, and all types of diagonals.
+
+  return false;
+}
+function updateGameState(gameState, level, index, player) {
+  gameState.levels[level][index] = player;
+
+  if (checkWin(gameState)) {
+    alert(`Player ${player} wins!`);
+  } else if (isGameOver(gameState)) {
+    alert("It's a draw!");
+  }
+}
+
 function createGameState() {
   let gameState = { levels: [] };
   for (let i = 0; i < 3; i++) {
@@ -35,7 +84,11 @@ function evaluateBoard(gameState) {
 }
 
 function isGameOver(gameState) {
-  return false;
+  const allCellsFilled = gameState.levels.every((level) =>
+    level.every((cell) => cell !== null)
+  );
+
+  return allCellsFilled || checkWin(gameState);
 }
 
 function getAvailableMoves(gameState) {
