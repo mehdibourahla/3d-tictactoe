@@ -1,9 +1,12 @@
+const resetButton = document.getElementById("resetButton");
 let currentPlayer = "X";
+resetButton.addEventListener("click", function (){
+  window.location.href = 'difficultyScreen.html'
+});
 gameState = createGameState();
 function switchPlayer() {
   currentPlayer = currentPlayer === "X" ? "O" : "X";
 }
-
 document.addEventListener("DOMContentLoaded", function () {
   initializeGame();
 
@@ -21,6 +24,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+// addEventList();
+// console.log(bool)
+// if(bool === 1 ){
+//   gameFinished = checkWin();
+//   console.log(gameFinished)
+// }
+
+// console.log(gameFinished);
+// addEventList();
+
+
+// -----------------------------------------------------------------------------------------//
 
 function initializeGame() {
   const boards = document.querySelectorAll(".board");
@@ -32,18 +47,75 @@ function initializeGame() {
     }
   });
 }
+function onDOMContentLoaded() {
+  initializeGame();
+
+  const boards = document.querySelectorAll(".board");
+  boards.forEach((board, level) => {
+    board.addEventListener("click", function (e) {
+      const cell = e.target;
+      const index = Array.from(board.children).indexOf(cell);
+      if (cell.classList.contains("cell") && !cell.textContent) {
+        cell.textContent = currentPlayer;
+        updateGameState(gameState, level, index, currentPlayer);
+        switchPlayer();
+        // Additional logic for switching turns or handling the AI's turn
+      }
+    });
+  });
+}
+function removeOnDOMContentLoaded() {
+  initializeGame();
+
+  const boards = document.querySelectorAll(".board");
+  boards.forEach((board, level) => {
+    board.removeEventListener("click", function (e) {
+      const cell = e.target;
+      const index = Array.from(board.children).indexOf(cell);
+      if (cell.classList.contains("cell") && !cell.textContent) {
+        cell.textContent = currentPlayer;
+        updateGameState(gameState, level, index, currentPlayer);
+        switchPlayer();
+        // Additional logic for switching turns or handling the AI's turn
+      }
+    });
+  });
+}
+//Fix remove event listener function
+function removeEventList(){
+  document.removeEventListener("DOMContentLoaded", function () {
+    initializeGame();
+  
+    const boards = document.querySelectorAll(".board");
+    boards.forEach((board, level) => {
+      board.removeEventListener("click", function (e) {
+        const cell = e.target;
+        const index = Array.from(board.children).indexOf(cell);
+        if (cell.classList.contains("cell") && !cell.textContent) {
+          cell.textContent = currentPlayer;
+          updateGameState(gameState, level, index, currentPlayer);
+          switchPlayer();
+          // Additional logic for switching turns or handling the AI's turn
+        }
+      });
+    });
+  });
+}
 function checkWin(gameState) {
+ 
   // Check horizontal and vertical lines in each board
   for (let level = 0; level < 3; level++) {
     let board = gameState.levels[level];
     for (let i = 0; i < 4; i++) {
       // Check rows and columns
+
       if (
         board[i * 4] === board[i * 4 + 1] &&
         board[i * 4 + 1] === board[i * 4 + 2] &&
         board[i * 4 + 2] === board[i * 4 + 3] &&
         board[i * 4] != null
       ) {
+        removeEventList();
         return true; // Row win
       }
       if (
@@ -52,8 +124,22 @@ function checkWin(gameState) {
         board[i + 8] === board[i + 12] &&
         board[i] != null
       ) {
+        removeEventList();
         return true; // Column win
       }
+      
+    }
+    if(
+      board[0] === board[5] && board[5]=== board[11] && board[11] === board[15] && board[0] != null
+    ){
+      removeEventList();
+      return true;
+    }
+    if(
+      board[3] === board[6] && board[6]=== board[9] && board[9] === board[12] && board[3] != null
+    ){
+      removeEventList();
+      return true;
     }
   }
 
@@ -66,6 +152,7 @@ function updateGameState(gameState, level, index, player) {
 
   if (checkWin(gameState)) {
     alert(`Player ${player} wins!`);
+    
   } else if (isGameOver(gameState)) {
     alert("It's a draw!");
   }
