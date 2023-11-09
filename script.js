@@ -35,7 +35,7 @@ const TicTacToeGame = (() => {
     cell.textContent = currentPlayer;
     gameState.levels[level][index] = currentPlayer;
     if (checkWin(gameState) || isGameOver(gameState)) {
-      endGame();
+      endGame(currentPlayer);
     } else {
       switchPlayer();
     }
@@ -183,10 +183,35 @@ const TicTacToeGame = (() => {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
   }
 
-  function endGame() {
-    // Implement end game logic
-    alert(`Game Over! Player ${currentPlayer} wins!`);
-    // Add any additional end game handling here
+  function endGame(winner) {
+    // Disable all cells to prevent further moves
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach((cell) => {
+      cell.removeEventListener("click", handleCellClick);
+      cell.classList.add("disabled");
+    });
+
+    const gameEndDialog = document.getElementById("gameEndDialog");
+    const gameEndMessage = document.getElementById("gameEndMessage");
+    const restartButton = document.getElementById("restartButton");
+
+    // Update the dialog message based on game outcome
+    gameEndMessage.textContent = winner
+      ? `Player ${winner} wins!`
+      : "It's a draw!";
+
+    // Show the dialog
+    gameEndDialog.classList.remove("hidden");
+
+    // Handle the restart button click
+    restartButton.addEventListener("click", function () {
+      restartGame();
+    });
+  }
+
+  function restartGame() {
+    // Refresh the page
+    window.location.href = "index.html";
   }
 
   function resetGame() {
