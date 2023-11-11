@@ -51,6 +51,15 @@ const TicTacToeGame = (() => {
     return checkVerticalsAndDiagonals(gameState);
   }
 
+  function isMaxPlayer(currentPlayer){
+    if (currentPlayer === "X"){
+      return false;
+    }else if (currentPlayer === "O"){
+      return true;
+    }
+  }
+
+
   function checkLevelWin(board) {
     // Check rows and columns
     for (let i = 0; i < 4; i++) {
@@ -237,6 +246,7 @@ const TicTacToeGame = (() => {
   }
 
   function evaluateBoard(gameState) {
+    //If X is the winner, if O is the winner, or if its a draw
     return 0;
   }
 
