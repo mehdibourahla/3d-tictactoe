@@ -1,9 +1,7 @@
 // TicTacToeGame module
 const TicTacToeGame = (() => {
-  let winner = "n/a"
-  let currentPlayer = "X";
-  let aiBoard = "n/a"
-  // const ameState = createGameState();
+  let currentPlayer = "X"; //User player
+  gameDepth = getDifficulty();
   const gameState = createGameState();
   const boards = document.querySelectorAll(".board");
   function initialize() {
@@ -15,17 +13,36 @@ const TicTacToeGame = (() => {
         board.appendChild(cell);
       }
       board.addEventListener("click", (e) => {
-        console.log("Board: " + e);
         const cell = e.target;
         const index = Array.from(board.children).indexOf(cell);
         if (cell.classList.contains("cell") && !cell.textContent) {
-          handleCellClick(cell, level, index);
+          handleCellClick(cell, level, index, gameDepth);
         }
       });
     });
 
     const resetButton = document.getElementById("resetButton");
     resetButton.addEventListener("click", resetGame);
+  }
+  function getDifficulty(){ //return the game depth based on the difficulty 
+    // Get the URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Check if the 'difficulty' parameter is present in the URL
+    if (urlParams.has('difficulty')) {
+        // Retrieve the value of the 'difficulty' parameter
+        const difficulty = urlParams.get('difficulty');
+        //return the depth based on the difficulty level
+        if (difficulty == "easy") {
+          return 2;
+        } else if (difficulty == "difficult"){
+          return 4;
+        } else if (difficulty = "insane"){
+          return 6;
+        }
+
+        
+}
   }
 
   function createGameState() {
@@ -36,35 +53,25 @@ const TicTacToeGame = (() => {
     return { levels };
   }
 
-  function handleCellClick(cell, level, index) {
-    console.log(cell)
+  function handleCellClick(cell, level, index, depth) { //handle click of the user/player
     cell.textContent = currentPlayer;
     gameState.levels[level][index] = currentPlayer;
     isMaximizingPlayer = isMaxPlayer(currentPlayer)
-    // console.log(isMaximizingPlayer)
-    // tryy = minimax(gameState, 0, -100, 100, isMaximizingPlayer)
-    // console.log("onclick")
-    // console.log(gameState)
-    // console.log(isMaximizingPlayer)
-
-    // console.log(tryy)
     if (checkWin(gameState) || isGameOver(gameState)) {
       setWinner(currentPlayer);
       endGame(currentPlayer);
     } else {
-      move = AIMove(gameState, 2)
+      //Handle the AIMove to call the MinMax function
+      move = AIMove(gameState, depth) 
+      // Get Cell ID
       cellID = "L" + move.level + "I" + move.index;
-      // console.log(cellID);
-      // console.log(move.level)
       switchPlayer();
+      //Simulate AI player move
       simulateAIClick(cellID, currentPlayer, move.level, move.index);
       switchPlayer();
-      console.log(move);
-      
-      // tryy = minimax(gameState, 2, -100, 100, isMaximizingPlayer)
     }
   }
-  function simulateAIClick(cellID, player, level, index){
+  function simulateAIClick(cellID, player, level, index){ //play the computer move
     const cell = document.getElementById(cellID);
     if (cell) {
       cell.textContent = player;
@@ -72,11 +79,8 @@ const TicTacToeGame = (() => {
     }
     }
 
-  
-
-  function checkWin(gameState) {
-    // Check all levels (2D boards) for wins
-    //DONT FORGET: CHANGE BACK TO CHECK ALL 4 LEVELS
+  function checkWin(gameState) { //check if the game has a winner
+    // Check all levels (3D boards) for wins
     for (let level = 0; level < 4; level++) {
       if (checkLevelWin(gameState.levels[level])) return true;
     }
@@ -89,15 +93,14 @@ const TicTacToeGame = (() => {
   }
 
   function isMaxPlayer(currentPlayer){
-    if (currentPlayer === "X"){
+    if (currentPlayer === "O"){
       return false;
-    }else if (currentPlayer === "O"){
+    }else if (currentPlayer === "X"){
       return true;
     }
   }
 
-
-  function checkLevelWin(board) {
+  function checkLevelWin(board) { //check if the level has a winner
     // Check rows and columns
     for (let i = 0; i < 4; i++) {
       if (
@@ -119,7 +122,7 @@ const TicTacToeGame = (() => {
     return false;
   }
 
-  function checkVerticalsAndDiagonals(gameState) {
+  function checkVerticalsAndDiagonals(gameState) { //check vertical and diagonals for 4 in a row
     // Check verticals
     for (let i = 0; i < 16; i++) {
       if (
@@ -213,32 +216,9 @@ const TicTacToeGame = (() => {
     return false;
   }
 
-  function checkLine(a, b, c, d) {
+  function checkLine(a, b, c, d) { //check game for 4 in a row
     return a !== null && a === b && b === c && c === d;
   }
-  // function checkLineAI(a,b,c,d){
-  //   if (a === "X"){
-  //     a === "AI"
-  //   } else if (a === "O"){
-  //     a === "Player"
-  //   }
-  //   if (b === "X"){
-  //     b === "AI"
-  //   } else if (b === "O"){
-  //     b === "Player"
-  //   }
-  //   if (c === "X"){
-  //     c === "AI"
-  //   } else if (c === "O"){
-  //     c === "Player"
-  //   }
-  //   if (d === "X"){
-  //     d === "AI"
-  //   } else if (d === "O"){
-  //     d === "Player"
-  //   }
-  //   return a !== null && a === b && b === c && c === d;
-  // }
 
   function isGameOver(gameState) {
     const allCellsFilled = gameState.levels.every((level) =>
@@ -287,7 +267,7 @@ const TicTacToeGame = (() => {
     window.location.href = "difficultyScreen.html";
   }
 
-  function getAvailableMoves(gameState) {
+  function getAvailableMoves(gameState) { //Get moves that are null
     let moves = [];
     gameState.levels.forEach((level, levelIndex) => {
       level.forEach((cell, cellIndex) => {
@@ -299,28 +279,40 @@ const TicTacToeGame = (() => {
     return moves;
   }
 
-  function applyMove(gameState, move, player) {
-    let newState = JSON.parse(JSON.stringify(gameState));
-    newState.levels[move.level][move.index] = player;
-    // console.log(newState)
-    // console.log("New State ^^")
-    return newState;
+  function applyMove(gameState, move, player) { //Apply move
+    gameState.levels[move.level][move.index] = player;
+    return gameState;
   }
-  function undoMove(gameState, move) {
-    let newState = JSON.parse(JSON.stringify(gameState));
-    newState.levels[move.level][move.index] = null;
-    // console.log(newState)
-    // console.log("New State ^^")
-    return newState;
+  function undoMove(gameState, move) { //Undo move
+    gameState.levels[move.level][move.index] = null;
+    return gameState;
   }
 
-  function countInLine(player, ps, line){
+  function countInLine(player, ps, line){//score the desirability of the line for the minimax alg
+    // If there is an opposite player in the line, there is no benefit of playing a move in that line
+    if (player == "X"){
+      if (line.includes("O")){
+        return 0;
+      }
+      else if (line.includes("min")){
+        return 0;
+      }
+    }else{
+      if (line.includes("X")){
+        return 0;
+      }
+      else if (line.includes("max")){
+        return 0;
+      }
+    }
+    //Get the number of players in that line, return a number to the power of 2
     const count = line.filter(cell => cell === player || cell === ps).length;
     return Math.pow(2, count);
   }
 
-  function checkThreats(player, ps,  board){
+  function checkThreats(player, ps,  board){//Iterate through all levels and return a score
     score = 0
+    // Check layers
     for (let level = 0; level < 4; level++) {
       for (let i = 0; i < 4; i++){
         let rowLine = [board.levels[level][i*4],board.levels[level][i*4 + 1], board.levels[level][i*4 + 2], board.levels[level][i*4 + 3]];
@@ -328,27 +320,17 @@ const TicTacToeGame = (() => {
         score += countInLine(player, ps, rowLine);
         score += countInLine(player, ps, columnLine);
       }
+      //Check diagonals
       let diagonal1 = [board.levels[level][0],board.levels[level][5], board.levels[level][10], board.levels[level][10]];
       let diagonal2 = [board.levels[level][3],board.levels[level][6], board.levels[level][9], board.levels[level][12]];
       score += countInLine(player, ps, diagonal1);
       score += countInLine(player, ps, diagonal2);
 
-      // if (checkMinMaxLevelWin(player, ps, gameState.levels[level])) return true;
     }
-   
-    // //Check layers
-    // for (let i = 0; i < 4; i++){
-    //   score += countInLine(player, board.map(row => row.map(cell => cell[i])));
-    // }
-    // //Check diagonals in 3d space
-    // score += countInLine(player, board.map((row, index) => row[index][index]));
-    // score += countInLine(player, board.map((row, index) => row[index][3-index]));
     return score
 
-    // for i = 0 in range(4):
-
   }
-  function checkMinMaxVerticalsAndDiagonals(player, ps, gameState) {
+  function checkMinMaxVerticalsAndDiagonals(player, ps, gameState) { //check the verticals and diagonals for the minimax alg
     // Check verticals
     for (let i = 0; i < 16; i++) {
       if (
@@ -450,10 +432,10 @@ const TicTacToeGame = (() => {
 
     return false;
   }
-  function checkMinMaxLine(a, b, c, d, playerString, player) {
+  function checkMinMaxLine(a, b, c, d, playerString, player) { //Check if there is 4 in a row for the minimax alg
     return (a === player || a === playerString) && (b === player || b === playerString) && (c === player || c === playerString) && (d === player || d === playerString);
   }
-  function checkMinMaxLevelWin(player, ps, board) {
+  function checkMinMaxLevelWin(player, ps, board) { //check if the player won during the minimax algorithm for a specific level
     // Check rows and columns
     for (let i = 0; i < 4; i++) {
       if (
@@ -475,7 +457,7 @@ const TicTacToeGame = (() => {
 
     return false;
   }
-  function checkMinMaxWin(player, ps, gameState) {
+  function checkMinMaxWin(player, ps, gameState) { //check if the player won when the minimax algorithm is called
     // Check all levels (2D boards) for wins
     for (let level = 0; level < 4; level++) {
       if (checkMinMaxLevelWin(player, ps, gameState.levels[level])) return true;
@@ -484,83 +466,32 @@ const TicTacToeGame = (() => {
     // Check verticals and diagonals that span levels
     return checkMinMaxVerticalsAndDiagonals(player, ps, gameState);
   }
-  function isWinner(player, board) {
+  function isWinner(player, board) { //is the player a winner
+    
     if (player === "X"){
       playerString = "max";
     } else {
       playerString = "min";
     } 
+    //Check if the player won the game
     if (checkMinMaxWin(player, playerString, board)){
       return true;
     } else {
       return false;
     }
   }
-  function isMinMaxGameOver(gameState) {
+  function isMinMaxGameOver(gameState) { //is the game over when minimax is applied
     const allCellsFilled = gameState.levels.every((level) =>
       level.every((cell) => cell !== null)
     );
 
     return allCellsFilled;
   }
-  // / Check rows and columns
-    // for (let i = 0; i < 4; i++) {
-    //   if (
-    //     checkMinMaxLine(
-    //       board[i * 4],
-    //       board[i * 4 + 1],
-    //       board[i * 4 + 2],
-    //       board[i * 4 + 3],
-    //       playerString
-    //     )
-    //   )
-    //     return true;
-    //   if (checkMinMaxLine(board[i], board[i + 4], board[i + 8], board[i + 12], playerString))
-    //     return true;
-    // }
-    // // tempBoard = board
-    // // console.log(tempBoard.levels[0])
-    // // console.log(board.levels[0][1])
-    // // // console.log(board[0])
-    // // // console.log(board[1])
-    // // for(let i = 0; i < 4; i++){
-    // //   console.log(board.levels[i])
-    // //   for (let j = 0; j < 4; j++){
-    // //     if (board.levels[i*3]){
 
-    // //     }
-    // //   }
-    //   //Check rows and columns wins
-    //   if(board[i].every(cell => cell === player || cell === playerString) || board.every(row => row[i] === player || row[i] === playerString)){
-    //     return true;
-    //   }
-    //   //Check diagonals wins
-    //   if (board.every((row,index) => row[index] === player) || board.every((row, index) => row[3 - index] === player || row[3 - index] === playerString)){
-    //     return true;
-    //   }
-    
-    //   //Check layers
-    //   for (let i = 0; i < 4; i++){
-    //     if(board.every(row => row.every(cell=> cell[i] === player || cell[i] === playerString))){
-    //       return true;
-    //     }
-    //   }
-    //   //check diagonals in 3d space
-    //   if(board.every((row, index) => row[index][index] === player || row[index][index] === playerString) || board.every((row, index) => row[index][3-index] === player || row[index][3-index] === playerString) ){
-    //     return true
-    //   }
-    //   return false
-    
-    // }
-
-  function evaluateBoard(gameState) {
-    // console.log(gameState)
+  function evaluateBoard(gameState) { //evaluate board when at terminal node
     if (isWinner("X", gameState)) {
-      //TODO: find out who one the game, the previous method using the current player, but that method will not work
-      // console.log("Here!! X won")
       return 1000;
     } else if (isWinner("O", gameState)){
-      // console.log("Here!! O Won")
       return -1000;
     } else if(isMinMaxGameOver(gameState)){
       return 0;
@@ -568,27 +499,13 @@ const TicTacToeGame = (() => {
       AIScore = checkThreats("X", "max", gameState)
       playerScore = checkThreats("O","min", gameState)
       return AIScore - playerScore
-      // if(AIScore > playerScore){
-      //   return 5;
-      // } else if (AIScore < playerScore){
-      //   return -5;
-      // } else{
-      //   return 0;
-      // }
-      // return AIScore - playerScore
     }
-    // }
-    // return 50
   }
-//Steps to evaluate: Step through minimaxif max vs if min functionality, isWinner functionality, check threats functionality, checkInLine functionality, evaluate functionality
-  function minimax(gameState, depth, alpha, beta, isMaximizingPlayer) {
-    // gameState
-    // console.log(aiBoard)
-    // console.log("---")
-    // console.log(gameState)
+  
+ function minimax(gameState, depth, alpha, beta, isMaximizingPlayer) { //minimax algorithm for computer
+    // Evaluate at terminal node
     if (depth === 0 || isGameOver(gameState)) {
       ev = evaluateBoard(gameState)
-      // console.log("Depth0Eval:" + ev)
       return ev;
     }
 
@@ -610,7 +527,6 @@ const TicTacToeGame = (() => {
         }
         
       }
-      // console.log("Max Eval: " + maxEval);
       return maxEval;
     } else {
       let minEval = Infinity;
@@ -629,16 +545,16 @@ const TicTacToeGame = (() => {
           break;
         }
       }
-      // console.log("Min Eval: " + minEval);
       return minEval;
     }
   }
-  function AIMove(gameState, difficultyLevel){
+  function AIMove(gameState, difficultyLevel){ //Get the best move for the computer
     let bestScore = -Infinity;
-    // let bestMove = null;
-    console.log(getAvailableMoves(gameState))
+    let bestMove = null;
     for (let move of getAvailableMoves(gameState)) {
+      applyMove(gameState, move, "X")
       score = minimax(gameState, difficultyLevel,-Infinity, Infinity, false);
+      undoMove(gameState, move, "X")
       if (score > bestScore){
         bestScore = score;
         bestMove = move;
