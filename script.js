@@ -3,6 +3,7 @@ const TicTacToeGame = (() => {
   let currentPlayer = "X";
   const gameState = createGameState();
   const boards = document.querySelectorAll(".board");
+  const gameDepth = getDifficulty();
   function initialize() {
     boards.forEach((board, level) => {
       for (let i = 0; i < 16; i++) {
@@ -169,6 +170,23 @@ const TicTacToeGame = (() => {
 
   function checkLine(a, b, c, d) {
     return a !== null && a === b && b === c && c === d;
+  }
+
+  function getDifficulty() {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has("difficulty")) {
+      const difficulty = urlParams.get("difficulty");
+
+      if (difficulty === "easy") {
+        return 2;
+      } else if (difficulty === "difficult") {
+        return 4;
+      } else if (difficulty === "insane") {
+        return 6;
+      }
+    }
+    return 2;
   }
 
   function isGameOver(gameState) {
