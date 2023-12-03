@@ -47,11 +47,10 @@ const TicTacToeGame = (() => {
       // Apply a hypothetical move
       gameState.levels[move.level][move.index] = "O";
       let score = minimax(
-        gameState,
         gameState.gameDepth,
         -Infinity,
         Infinity,
-        true
+        false
       );
 
       // Undo the hypothetical move
@@ -70,17 +69,17 @@ const TicTacToeGame = (() => {
     }
   }
 
-  function minimax(gameState, depth, alpha, beta, isMaximizingPlayer) {
+  function minimax(depth, alpha, beta, isMaximizingPlayer) {
     if (depth === 0 || isGameOver()) {
-      return evaluateBoard(gameState);
+      return evaluateBoard();
     }
 
     if (isMaximizingPlayer) {
       let maxEval = -Infinity;
       getAvailableMoves().forEach((move) => {
-        gameState.levels[move.level][move.index] = "O"; // Assuming AI is "O"
-        let evaluation = minimax(gameState, depth - 1, alpha, beta, true);
-        gameState.levels[move.level][move.index] = null; // Undo the move
+        gameState.levels[move.level][move.index] = "O";
+        let evaluation = minimax(depth - 1, alpha, beta, false);
+        gameState.levels[move.level][move.index] = null;
         maxEval = Math.max(maxEval, evaluation);
         alpha = Math.max(alpha, evaluation);
         if (beta <= alpha) {
@@ -91,9 +90,9 @@ const TicTacToeGame = (() => {
     } else {
       let minEval = Infinity;
       getAvailableMoves().forEach((move) => {
-        gameState.levels[move.level][move.index] = "X"; // Assuming player is "X"
-        let evaluation = minimax(gameState, depth - 1, alpha, beta, false);
-        gameState.levels[move.level][move.index] = null; // Undo the move
+        gameState.levels[move.level][move.index] = "X";
+        let evaluation = minimax(depth - 1, alpha, beta, true);
+        gameState.levels[move.level][move.index] = null;
         minEval = Math.min(minEval, evaluation);
         beta = Math.min(beta, evaluation);
         if (beta <= alpha) {
@@ -241,14 +240,14 @@ const TicTacToeGame = (() => {
       const difficulty = urlParams.get("difficulty");
 
       if (difficulty === "easy") {
-        return 2;
+        return 0;
       } else if (difficulty === "difficult") {
-        return 3;
+        return 1;
       } else if (difficulty === "insane") {
-        return 4;
+        return 2;
       }
     }
-    return 2;
+    return 1;
   }
 
   function isGameOver() {
@@ -256,7 +255,7 @@ const TicTacToeGame = (() => {
       level.every((cell) => cell !== null)
     );
 
-    return allCellsFilled || checkWin();
+    return allCellsFilled;
   }
 
   function switchPlayer() {
@@ -286,13 +285,8 @@ const TicTacToeGame = (() => {
 
     // Handle the restart button click
     restartButton.addEventListener("click", function () {
-      restartGame();
+      resetGame();
     });
-  }
-
-  function restartGame() {
-    // Refresh the page
-    window.location.href = "index.html";
   }
 
   function resetGame() {
@@ -326,7 +320,7 @@ const TicTacToeGame = (() => {
     } else switchPlayer();
   }
 
-  function evaluateBoard(gameState) {
+  function evaluateBoard() {
     let score = 0;
 
     // Iterate through each level and evaluate rows, columns, and diagonals
@@ -375,8 +369,8 @@ const TicTacToeGame = (() => {
     }
 
     // Cube diagonals
-    score += evaluateCubeDiagonals(gameState, "O");
-    score -= evaluateCubeDiagonals(gameState, "X");
+    score += evaluateCubeDiagonals("O");
+    score -= evaluateCubeDiagonals("X");
 
     return score;
   }
@@ -405,7 +399,7 @@ const TicTacToeGame = (() => {
     return 0;
   }
 
-  function evaluateCubeDiagonals(gameState, player) {
+  function evaluateCubeDiagonals(player) {
     // This function evaluates the diagonals that span across levels
     let score = 0;
 
