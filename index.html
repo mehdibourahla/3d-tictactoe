@@ -30,17 +30,33 @@
         <button id="restartButton">Restart Game</button>
       </div>
     </div>
-    <div id="gameContainer">
-      <div id="boardContainer">
-        <div class="board" data-level="0"></div>
-        <div class="board" data-level="1"></div>
-        <div class="board" data-level="2"></div>
-        <div class="board" data-level="3"></div>
+    <div id="container">
+      <div id="gameContainer">
+        <div id="boardContainer">
+          <div class="board" data-level="0"></div>
+          <div class="board" data-level="1"></div>
+          <div class="board" data-level="2"></div>
+          <div class="board" data-level="3"></div>
+        </div>
       </div>
-    </div>
-    <div id="resetContainer">
-      <button id="resetButton">Replay</button>
-      <button id="rulesButton">Read Rules</button>
+      <div id="paramContainer">
+        <div>
+          <button id="resetButton">Replay</button>
+          <button id="rulesButton">Read Rules</button>
+        </div>
+        <div>
+          <div id="difficultySelection">
+            <input type="radio" id="easy" name="difficulty" value="0" checked />
+            <label for="easy">Easy</label><br />
+
+            <input type="radio" id="medium" name="difficulty" value="1" />
+            <label for="medium">Medium</label><br />
+
+            <input type="radio" id="difficult" name="difficulty" value="2" />
+            <label for="difficult">Difficult</label>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="js/script.js"></script>
     <script src="js/rules.js"></script>

@@ -1,16 +1,23 @@
 body {
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
+  display: flex;
+  justify-content: center;
   background-color: #eaeaea;
 }
 
-#gameContainer {
+#container {
+  margin-top: 20px;
   width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#gameContainer {
+  width: 100%;
   height: 80vh;
   display: flex;
   flex-direction: column;
@@ -64,14 +71,19 @@ body {
   color: #777;
 }
 
-#resetContainer {
-  margin-top: 20px;
+#paramContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-top: 10px;
 }
 
 button {
   background-color: #007bff;
   color: white;
   border: none;
+  height: 40px;
   padding: 10px 20px;
   font-size: 1rem;
   border-radius: 5px;
@@ -81,14 +93,6 @@ button {
 
 button:hover {
   background-color: #0056b3;
-}
-
-.dialog {
-  /* Styles for dialog */
-}
-
-.dialog-content {
-  /* Styles for dialog content */
 }
 
 .hidden {
@@ -124,10 +128,6 @@ button:hover {
   display: none !important;
 }
 
-#rulesButton {
-  margin-top: 20px;
-}
-
 #rulesDialog {
   position: fixed;
   top: 0;
@@ -150,4 +150,22 @@ button:hover {
 
 .dialog-content > button {
   margin-top: 20px;
+}
+
+#difficultySelection {
+  padding: 10px;
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  text-align: center;
+}
+
+
+#difficultySelection label {
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+#difficultySelection input[type="radio"] {
+  margin-right: 5px;
 }

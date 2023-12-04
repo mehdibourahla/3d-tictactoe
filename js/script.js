@@ -20,13 +20,22 @@ const TicTacToeGame = (() => {
       });
     });
 
+    document.querySelectorAll('input[name="difficulty"]').forEach((elem) => {
+      elem.addEventListener("change", function (event) {
+        const difficulty = event.target.value;
+        gameState.gameDepth = parseInt(difficulty);
+      });
+    });
+
     const resetButton = document.getElementById("resetButton");
     resetButton.addEventListener("click", resetGame);
   }
 
   function createGameState() {
     let currentPlayer = "X";
-    const gameDepth = getDifficulty();
+    let gameDepth = parseInt(
+      document.querySelector('input[name="difficulty"]:checked').value
+    );
     let levels = [];
     for (let i = 0; i < 4; i++) {
       levels.push(new Array(16).fill(null));
@@ -46,12 +55,7 @@ const TicTacToeGame = (() => {
     getAvailableMoves().forEach((move) => {
       // Apply a hypothetical move
       gameState.levels[move.level][move.index] = "O";
-      let score = minimax(
-        gameState.gameDepth,
-        -Infinity,
-        Infinity,
-        false
-      );
+      let score = minimax(gameState.gameDepth, -Infinity, Infinity, false);
 
       // Undo the hypothetical move
       gameState.levels[move.level][move.index] = null;
@@ -233,23 +237,6 @@ const TicTacToeGame = (() => {
     return a !== null && a === b && b === c && c === d;
   }
 
-  function getDifficulty() {
-    const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.has("difficulty")) {
-      const difficulty = urlParams.get("difficulty");
-
-      if (difficulty === "easy") {
-        return 0;
-      } else if (difficulty === "difficult") {
-        return 1;
-      } else if (difficulty === "insane") {
-        return 2;
-      }
-    }
-    return 1;
-  }
-
   function isGameOver() {
     const allCellsFilled = gameState.levels.every((level) =>
       level.every((cell) => cell !== null)
@@ -290,8 +277,7 @@ const TicTacToeGame = (() => {
   }
 
   function resetGame() {
-    const difficulty = getDifficulty();
-    window.location.href = `index.html?difficulty=${difficulty}`;
+    window.location.href = "index.html";
   }
 
   function getAvailableMoves() {
