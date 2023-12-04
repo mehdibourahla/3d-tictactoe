@@ -7,6 +7,23 @@
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
+    <div id="rulesDialog" class="hidden">
+      <div class="dialog-content">
+        <h2>Game Rules</h2>
+        <hr />
+        <div>
+          <div><strong>Objective:</strong></div>
+          The goal of 3D Tic Tac Toe is to be the first player to align 4 of
+          your markers in a row horizontally, vertically, or diagonally on a
+          single board or spanning across multiple boards.
+          <div style="margin-top: 10px"><strong>Setup:</strong></div>
+          The game consists of four 4x4 grids stacked on top of each other.
+          Players: Two players take turns to place their marker (X or O) on any
+          unoccupied cell in the grid.
+        </div>
+        <button id="closeRulesButton">Close</button>
+      </div>
+    </div>
     <div id="gameEndDialog" class="dialog hidden">
       <div class="dialog-content">
         <p id="gameEndMessage"></p>
@@ -14,16 +31,18 @@
       </div>
     </div>
     <div id="gameContainer">
-    <div id="boardContainer">
-      <div class="board" data-level="0"></div>
-      <div class="board" data-level="1"></div>
-      <div class="board" data-level="2"></div>
-      <div class="board" data-level="3"></div>
+      <div id="boardContainer">
+        <div class="board" data-level="0"></div>
+        <div class="board" data-level="1"></div>
+        <div class="board" data-level="2"></div>
+        <div class="board" data-level="3"></div>
+      </div>
     </div>
-  </div>
     <div id="resetContainer">
-      <button id="resetButton">Reset</button>
+      <button id="resetButton">Replay</button>
+      <button id="rulesButton">Read Rules</button>
     </div>
     <script src="js/script.js"></script>
+    <script src="js/rules.js"></script>
   </body>
 </html>
