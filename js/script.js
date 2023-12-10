@@ -33,6 +33,7 @@ const TicTacToeGame = (() => {
 
   function createGameState() {
     let currentPlayer = "X";
+    let gameOver = false;
     let gameDepth = parseInt(
       document.querySelector('input[name="difficulty"]:checked').value
     );
@@ -40,12 +41,12 @@ const TicTacToeGame = (() => {
     for (let i = 0; i < 4; i++) {
       levels.push(new Array(16).fill(null));
     }
-    return { levels, gameDepth, currentPlayer };
+    return { levels, gameDepth, currentPlayer, gameOver };
   }
 
   function handleCellClick(move) {
     applyMove(move);
-    AIMove();
+    if (!gameState.gameOver) AIMove();
   }
 
   function AIMove() {
@@ -107,134 +108,123 @@ const TicTacToeGame = (() => {
     }
   }
 
+  // Update checkLevelWin to track the winning positions
+  function checkLevelWin(board, level) {
+    let winPositions = null;
+
+    // Check rows and columns
+    for (let i = 0; i < 4; i++) {
+      let rowPositions = [i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3].map(
+        (pos) => level * 16 + pos
+      );
+      winPositions = checkLine(
+        board[i * 4],
+        board[i * 4 + 1],
+        board[i * 4 + 2],
+        board[i * 4 + 3],
+        rowPositions
+      );
+      if (winPositions) return winPositions;
+
+      let colPositions = [i, i + 4, i + 8, i + 12].map(
+        (pos) => level * 16 + pos
+      );
+      winPositions = checkLine(
+        board[i],
+        board[i + 4],
+        board[i + 8],
+        board[i + 12],
+        colPositions
+      );
+      if (winPositions) return winPositions;
+    }
+
+    // Check diagonals within level
+    let diag1Positions = [0, 5, 10, 15].map((pos) => level * 16 + pos);
+    winPositions = checkLine(
+      board[0],
+      board[5],
+      board[10],
+      board[15],
+      diag1Positions
+    );
+    if (winPositions) return winPositions;
+
+    let diag2Positions = [3, 6, 9, 12].map((pos) => level * 16 + pos);
+    winPositions = checkLine(
+      board[3],
+      board[6],
+      board[9],
+      board[12],
+      diag2Positions
+    );
+    if (winPositions) return winPositions;
+
+    return null; // Return null if no win is found
+  }
+
+  // Update checkVerticalsAndDiagonals to track the winning positions
+  function checkVerticalsAndDiagonals() {
+    let winPositions = null;
+
+    // Check verticals
+    for (let i = 0; i < 16; i++) {
+      let vertPositions = [i, i + 16, i + 32, i + 48]; // Positions for each level
+      winPositions = checkLine(
+        gameState.levels[0][i],
+        gameState.levels[1][i],
+        gameState.levels[2][i],
+        gameState.levels[3][i],
+        vertPositions
+      );
+      if (winPositions) return winPositions;
+    }
+
+    // Define the positions for cube diagonals
+    let cubeDiagonals = [
+      [0, 17, 34, 51],
+      [3, 18, 33, 48],
+      [12, 25, 38, 51],
+      [15, 26, 37, 48],
+    ];
+
+    // Check cube diagonals
+    for (let diag of cubeDiagonals) {
+      winPositions = checkLine(
+        gameState.levels[0][diag[0]],
+        gameState.levels[1][diag[1]],
+        gameState.levels[2][diag[2]],
+        gameState.levels[3][diag[3]],
+        diag
+      );
+      if (winPositions) return winPositions;
+    }
+
+    return null; // Return null if no win is found
+  }
+
+  // Update checkWin to use the new checkLevelWin and checkVerticalsAndDiagonals
   function checkWin() {
+    let winPositions = null;
+
     // Check all levels (2D boards) for wins
     for (let level = 0; level < 4; level++) {
-      if (checkLevelWin(gameState.levels[level])) return true;
+      winPositions = checkLevelWin(gameState.levels[level], level);
+      if (winPositions) return winPositions;
     }
 
     // Check verticals and diagonals that span levels
-    return checkVerticalsAndDiagonals();
+    winPositions = checkVerticalsAndDiagonals();
+    if (winPositions) return winPositions;
+
+    return null; // Return null if no win is found
   }
 
-  function checkLevelWin(board) {
-    // Check rows and columns
-    for (let i = 0; i < 4; i++) {
-      if (
-        checkLine(
-          board[i * 4],
-          board[i * 4 + 1],
-          board[i * 4 + 2],
-          board[i * 4 + 3]
-        )
-      )
-        return true;
-      if (checkLine(board[i], board[i + 4], board[i + 8], board[i + 12]))
-        return true;
+  function checkLine(a, b, c, d, positions) {
+    if (a !== null && a === b && b === c && c === d) {
+      return positions;
     }
-    // Check diagonals within level
-    if (checkLine(board[0], board[5], board[10], board[15])) return true;
-    if (checkLine(board[3], board[6], board[9], board[12])) return true;
-
-    return false;
-  }
-
-  function checkVerticalsAndDiagonals() {
-    // Check verticals
-    for (let i = 0; i < 16; i++) {
-      if (
-        checkLine(
-          gameState.levels[0][i],
-          gameState.levels[1][i],
-          gameState.levels[2][i],
-          gameState.levels[3][i]
-        )
-      ) {
-        return true;
-      }
-    }
-
-    // Check cube diagonals
-    if (
-      checkLine(
-        gameState.levels[0][0],
-        gameState.levels[1][1],
-        gameState.levels[2][2],
-        gameState.levels[3][3]
-      )
-    )
-      return true;
-    if (
-      checkLine(
-        gameState.levels[0][15],
-        gameState.levels[1][14],
-        gameState.levels[2][13],
-        gameState.levels[3][12]
-      )
-    )
-      return true;
-    if (
-      checkLine(
-        gameState.levels[0][3],
-        gameState.levels[1][2],
-        gameState.levels[2][1],
-        gameState.levels[3][0]
-      )
-    )
-      return true;
-    if (
-      checkLine(
-        gameState.levels[0][12],
-        gameState.levels[1][13],
-        gameState.levels[2][14],
-        gameState.levels[3][15]
-      )
-    )
-      return true;
-
-    // Check additional cross-section diagonals
-    if (
-      checkLine(
-        gameState.levels[0][0],
-        gameState.levels[1][4],
-        gameState.levels[2][8],
-        gameState.levels[3][12]
-      )
-    )
-      return true;
-    if (
-      checkLine(
-        gameState.levels[0][3],
-        gameState.levels[1][7],
-        gameState.levels[2][11],
-        gameState.levels[3][15]
-      )
-    )
-      return true;
-    if (
-      checkLine(
-        gameState.levels[0][12],
-        gameState.levels[1][8],
-        gameState.levels[2][4],
-        gameState.levels[3][0]
-      )
-    )
-      return true;
-    if (
-      checkLine(
-        gameState.levels[0][15],
-        gameState.levels[1][11],
-        gameState.levels[2][7],
-        gameState.levels[3][3]
-      )
-    )
-      return true;
-
-    return false;
-  }
-
-  function checkLine(a, b, c, d) {
-    return a !== null && a === b && b === c && c === d;
+    return null;
   }
 
   function isGameOver() {
@@ -249,8 +239,30 @@ const TicTacToeGame = (() => {
     gameState.currentPlayer = gameState.currentPlayer === "X" ? "O" : "X";
   }
 
-  function endGame() {
+  function highlightWinningCells(positions, winner) {
+    if (positions) {
+      // Check which player won
+      positions.forEach((pos) => {
+        const levelIndex = Math.floor(pos / 16);
+        const cellIndex = pos % 16;
+        const winningCell = boards[levelIndex].children[cellIndex];
+        if (winner === "X") {
+          winningCell.classList.add("winning-cell-x");
+        } else {
+          winningCell.classList.add("winning-cell-o");
+        }
+      });
+    }
+  }
+
+  function endGame(winningPositions) {
+    gameState.gameOver = true;
     const winner = gameState.currentPlayer;
+
+    if (winningPositions) {
+      highlightWinningCells(winningPositions, winner);
+    }
+
     // Disable all cells to prevent further moves
     const cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
@@ -301,9 +313,12 @@ const TicTacToeGame = (() => {
     const cell = board.children[move.index];
     cell.textContent = player;
 
-    if (checkWin() || isGameOver()) {
-      endGame();
-    } else switchPlayer();
+    const winningPositions = checkWin();
+    if (winningPositions || isGameOver()) {
+      endGame(winningPositions);
+    } else {
+      switchPlayer();
+    }
   }
 
   function evaluateBoard() {

@@ -112,7 +112,7 @@ button:hover {
   top: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.2);
   justify-content: center;
   align-items: center;
   z-index: 1;
@@ -160,7 +160,6 @@ button:hover {
   text-align: center;
 }
 
-
 #difficultySelection label {
   margin: 0 10px;
   cursor: pointer;
@@ -168,4 +167,13 @@ button:hover {
 
 #difficultySelection input[type="radio"] {
   margin-right: 5px;
+}
+
+.winning-cell-x {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+.winning-cell-o {
+  background-color: red !important;
+  color: white !important;
 }
